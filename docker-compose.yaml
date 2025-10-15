@@ -1,0 +1,11 @@
+version: '3'
+services:
+  my_app:
+    container_name: my_app  # <- тут задаємо бажане ім'я
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8080"
+    environment:
+      PORT: "8080"
