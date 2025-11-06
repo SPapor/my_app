@@ -20,5 +20,5 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # Запускаємо FastAPI через uvicorn
-# Тепер правильно — файл main.py лежить у корені, тому просто main:app
+# Тепер правильно — файл main.py лежить у корені, тому просто main:lab_1
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
