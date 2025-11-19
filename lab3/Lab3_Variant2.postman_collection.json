@@ -1,0 +1,202 @@
+{
+	"info": {
+		"_postman_id": "b2345678-90cd-ef12-3456-7890abcdef12",
+		"name": "Lab 3: Variant 2 (UUID & Access Control)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"user_id_1\", jsonData.id);",
+							"pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Alice\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{base_url}}/user",
+					"host": ["{{base_url}}"],
+					"path": ["user"]
+				}
+			}
+		},
+		{
+			"name": "Create User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"user_id_2\", jsonData.id);",
+							"pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Bob\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{base_url}}/user",
+					"host": ["{{base_url}}"],
+					"path": ["user"]
+				}
+			}
+		},
+		{
+			"name": "Create_global_category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"cat_global_id\", jsonData.id);",
+							"pm.test(\"Global category has null user_id\", function () { pm.expect(jsonData.user_id).to.be.null; });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Global Food\",\n    \"is_global\": true,\n    \"user_id\": null\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{base_url}}/category",
+					"host": ["{{base_url}}"],
+					"path": ["category"]
+				}
+			}
+		},
+		{
+			"name": "Create_private_category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"cat_private_id\", jsonData.id);",
+							"pm.test(\"Private category belongs to Alice\", function () { pm.expect(jsonData.user_id).to.eql(pm.environment.get(\"user_id_1\")); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Alice Secret Stash\",\n    \"is_global\": false,\n    \"user_id\": \"{{user_id_1}}\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{base_url}}/category",
+					"host": ["{{base_url}}"],
+					"path": ["category"]
+				}
+			}
+		},
+		{
+			"name": "Get Categories",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/category?user_id={{user_id_1}}",
+					"host": ["{{base_url}}"],
+					"path": ["category"],
+					"query": [
+						{ "key": "user_id", "value": "{{user_id_1}}" }
+					]
+				},
+				"description": "Should return both Global and Alice's private categories."
+			}
+		},
+		{
+			"name": "Record Success",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"{{user_id_1}}\",\n    \"category_id\": \"{{cat_private_id}}\",\n    \"amount\": 100.50\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{base_url}}/record",
+					"host": ["{{base_url}}"],
+					"path": ["record"]
+				}
+			}
+		},
+		{
+			"name": "Record FAIL ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 403 Forbidden\", function () { pm.response.to.have.status(403); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"{{user_id_2}}\",\n    \"category_id\": \"{{cat_private_id}}\",\n    \"amount\": 500.00\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{base_url}}/record",
+					"host": ["{{base_url}}"],
+					"path": ["record"]
+				},
+				"description": "Bob tries to use a category created by Alice. Should be forbidden."
+			}
+		}
+	]
+}
