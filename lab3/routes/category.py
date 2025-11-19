@@ -42,7 +42,7 @@ def get_categories(user_id: Optional[UUID] = None, db: Session = Depends(get_db)
 
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_category(category_id: UUID, db: Session = Depends(get_db)):  # <--- int -> UUID
+def delete_category(category_id: UUID, db: Session = Depends(get_db)):
     category = db.query(models.Category).filter(models.Category.id == category_id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")

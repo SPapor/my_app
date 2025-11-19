@@ -21,7 +21,6 @@ class Category(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
     is_global = Column(Boolean, default=True)
-    # Зв'язок тепер теж UUID
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="categories")
     records = relationship("Record", back_populates="category")

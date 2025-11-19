@@ -21,7 +21,7 @@ def create_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{user_id}", response_model=schemas.UserResponse)
-def get_user(user_id: UUID, db: Session = Depends(get_db)): # <--- UUID
+def get_user(user_id: UUID, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -34,7 +34,7 @@ def get_all_users(db: Session = Depends(get_db)):
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: UUID, db: Session = Depends(get_db)):  # <--- БУЛО int, СТАЛО UUID
+def delete_user(user_id: UUID, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

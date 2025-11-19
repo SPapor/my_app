@@ -63,7 +63,7 @@ def get_records(
 
 
 @router.delete("/{record_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_record(record_id: UUID, db: Session = Depends(get_db)):  # <--- int -> UUID
+def delete_record(record_id: UUID, db: Session = Depends(get_db)):
     record = db.query(models.Record).filter(models.Record.id == record_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="Record not found")
