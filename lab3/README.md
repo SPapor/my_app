@@ -25,6 +25,9 @@ cd lab_3
 Создайте файл .env.docker в корне папки lab_3 и вставьте следующие настройки:
 
 ```bash 
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_DB=db_name
 DATABASE_URL=postgresql://postgres:my_secret_password@db:5432/expense_db
 ```
 ### 3. Docker Compose: Сборка и Запуск
