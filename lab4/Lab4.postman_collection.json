@@ -1,0 +1,206 @@
+{
+	"info": {
+		"_postman_id": "c9d0e1f2-a3b4-c5d6-e7f8-90a1b2c3d4e5",
+		"name": "Lab 4: JWT Authentication Flow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Register User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"alice_jwt\",\n    \"password\": \"secure_password_4\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				},
+				"description": "Регистрирует нового пользователя. Используйте это имя и пароль для логина."
+			}
+		},
+		{
+			"name": "02. Login and Get Token (Set Environment)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"// 1. Сохраняем access_token в переменную окружения",
+							"pm.environment.set(\"access_token\", jsonData.access_token);",
+							"pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"Token received\", function () { pm.expect(jsonData.access_token).to.be.a('string'); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"alice_jwt\",\n    \"password\": \"secure_password_4\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				},
+				"description": "Логинится, проверяет пароль и сохраняет access_token в переменную окружения для дальнейшего использования."
+			}
+		},
+		{
+			"name": "03. Get Protected Resource (SUCCESS)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Попытка доступа к защищенному маршруту с использованием полученного токена."
+			}
+		},
+		{
+			"name": "04. Get Protected Resource (FAIL: Unauthorized)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 401 Unauthorized\", function () { pm.response.to.have.status(401); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Попытка доступа к защищенному маршруту БЕЗ токена. Ожидаем 401."
+			}
+		},
+		{
+			"name": "05. Create Protected Category (SUCCESS)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"cat_global_id_jwt\", jsonData.id);",
+							"pm.test(\"Status is 200/201 Success\", function () { pm.response.to.be.oneOf([200, 201]); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Global Food (JWT Test)\",\n    \"is_global\": true,\n    \"user_id\": null\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/category",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"category"
+					]
+				},
+				"description": "Создание защищенного ресурса (Категории) с использованием токена."
+			}
+		}
+	]
+}
